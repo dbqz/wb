@@ -19,7 +19,7 @@ export const MusicPlayer = () => {
 
   useEffect(() => {
     // 通过代理获取歌曲信息
-    fetch("/api/music?msg=谁和我在一起会幸福的&n=1")
+    fetch("/api/music?msg=雨爱(人声弱化1.05x)&n=1")
       .then((res) => res.json())
       .then((data) => {
         if (data.music) {

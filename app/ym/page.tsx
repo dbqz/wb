@@ -6,6 +6,8 @@ import { StarsBackground } from "@/components/ui/stars-background";
 import { IconArrowLeft, IconHeart } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
+import confetti from "canvas-confetti";
+import { Fireworks } from "fireworks-js";
 
 // 一句一句显示的动画组件
 function AnimatedSentence({ sentence, delay }: { sentence: string; delay: number }) {
@@ -38,7 +40,7 @@ function BackgroundMusic({ onConfirm }: { onConfirm: () => void }) {
 
   useEffect(() => {
     // 获取音乐信息
-    fetch("/api/music?msg=谁和我在一起会幸福的&n=1")
+    fetch("/api/music?msg=雨爱(人声弱化1.05x)&n=1")
       .then((res) => res.json())
       .then((data) => {
         if (data.music) {
@@ -136,7 +138,7 @@ function LoveTimer() {
   });
 
   useEffect(() => {
-    const startDate = new Date("2025-10-12T13:14:00");
+    const startDate = new Date("2025-12-24T09:00:00");
 
     const updateTimer = () => {
       const now = new Date();
@@ -171,43 +173,285 @@ function LoveTimer() {
 
 // 浮动的心形组件
 function FloatingHeart({ delay = 0, leftPosition = 50 }: { delay?: number; leftPosition?: number }) {
-  const [randomX] = useState(() => Math.random() * 100 - 50);
-  const [randomX2] = useState(() => Math.random() * 100 - 50);
+  const [randomX] = useState(() => Math.random() * 200 - 100);
+  const [randomX2] = useState(() => Math.random() * 200 - 100);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 0, x: 0 }}
       animate={{
         opacity: [0, 1, 1, 0],
-        y: [-100, -200, -300, -400],
+        y: [-100, -300, -500, -700],
         x: [0, randomX, randomX2, 0],
       }}
       transition={{
-        duration: 8,
+        duration: 10,
         delay: delay,
         repeat: Infinity,
-        repeatDelay: 3,
+        repeatDelay: 2,
       }}
       className="absolute bottom-0"
       style={{ left: `${leftPosition}%` }}
     >
-      <IconHeart className="w-6 h-6 text-pink-500/30 fill-pink-500/30" />
+      <IconHeart className="w-8 h-8 text-pink-500/40 fill-pink-500/40" />
     </motion.div>
   );
 }
 
-export default function CynPage() {
+export default function YmPage() {
   const { scrollY } = useScroll();
   const opacity1 = useTransform(scrollY, [0, 400], [1, 0]);
   const scale1 = useTransform(scrollY, [0, 400], [1, 0.8]);
   
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
-  const [musicConfirmed, setMusicConfirmed] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
+  const [showQuotes, setShowQuotes] = useState(false);
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  const fireworksRef = useRef<HTMLDivElement>(null);
+  const fireworksInstance = useRef<Fireworks | null>(null);
+
+  // 语录列表
+  const quotes = [
+    "从今以后 你就是我的全世界",
+    "余生很长 我想和你一起走",
+    "我会珍惜我们在一起的每一天",
+    "无论未来如何 我都会陪在你身边",
+    "谢谢你愿意成为我的女朋友",
+    "我爱你 杨敏"
+  ];
+
+  const handleEnvelopeClick = () => {
+    if (!isEnvelopeOpen) {
+      setIsEnvelopeOpen(true);
+      
+      // 触发 confetti 动画 - 10秒
+      const duration = 10 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+      function randomInRange(min: number, max: number) {
+        return Math.random() * (max - min) + min;
+      }
+
+      const interval: NodeJS.Timeout = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        
+        // 从左侧发射
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+          colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1'],
+        });
+        
+        // 从右侧发射
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+          colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1'],
+        });
+      }, 250);
+    }
+  };
+
+  const handleLoveTextClick = () => {
+    console.log("触发烟花");
+    setShowFireworks(true);
+  };
+
+  useEffect(() => {
+    if (showFireworks && fireworksRef.current && !fireworksInstance.current) {
+      console.log("初始化烟花");
+      fireworksInstance.current = new Fireworks(fireworksRef.current, {
+        autoresize: true,
+        opacity: 0.5,
+        acceleration: 1.05,
+        friction: 0.97,
+        gravity: 1.5,
+        particles: 150,
+        traceLength: 3,
+        traceSpeed: 10,
+        explosion: 8,
+        intensity: 30,
+        flickering: 50,
+        lineStyle: 'round',
+        hue: {
+          min: 0,
+          max: 360
+        },
+        delay: {
+          min: 30,
+          max: 60
+        },
+        rocketsPoint: {
+          min: 50,
+          max: 50
+        },
+        lineWidth: {
+          explosion: {
+            min: 1,
+            max: 4
+          },
+          trace: {
+            min: 1,
+            max: 2
+          }
+        },
+        brightness: {
+          min: 50,
+          max: 80
+        },
+        decay: {
+          min: 0.015,
+          max: 0.03
+        },
+        mouse: {
+          click: false,
+          move: false,
+          max: 1
+        }
+      });
+      
+      fireworksInstance.current.start();
+      console.log("烟花已启动");
+      
+      // 8秒后停止烟花，开始显示语录
+      setTimeout(() => {
+        if (fireworksInstance.current) {
+          fireworksInstance.current.stop();
+          console.log("烟花已停止");
+        }
+        setShowQuotes(true);
+      }, 8000);
+    }
+  }, [showFireworks]);
+
+  // 语录轮播
+  useEffect(() => {
+    if (showQuotes && currentQuoteIndex < quotes.length) {
+      // 每段语录显示3秒后切换到下一段
+      const timer = setTimeout(() => {
+        setCurrentQuoteIndex(prev => prev + 1);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showQuotes, currentQuoteIndex, quotes.length]);
+
+  // 语录展示时的爱心 confetti
+  useEffect(() => {
+    if (showQuotes && currentQuoteIndex < quotes.length) {
+      const duration = 3000;
+      const animationEnd = Date.now() + duration;
+
+      const heartShape = confetti.shapeFromPath({
+        path: 'M167,72.8c2.9-17.9-6.8-35.7-24.3-42.8c-20.6-8.4-44,3.9-52.4,24.5c0,0,0,0,0,0c-8.4-20.6-31.8-32.9-52.4-24.5c-17.5,7.1-27.2,24.9-24.3,42.8c5.3,32.2,76.7,81,76.7,81S159.7,105,167,72.8z'
+      });
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1'],
+          shapes: [heartShape],
+          scalar: 3,
+          gravity: 0.6,
+          drift: 0.5,
+          ticks: 400,
+          zIndex: 10001,
+        });
+
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1'],
+          shapes: [heartShape],
+          scalar: 3,
+          gravity: 0.6,
+          drift: -0.5,
+          ticks: 400,
+          zIndex: 10001,
+        });
+
+        // 中间也发射一些
+        if (Math.random() < 0.5) {
+          confetti({
+            particleCount: 3,
+            angle: 90,
+            spread: 45,
+            origin: { x: 0.5, y: 0.3 },
+            colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#ffb6c1'],
+            shapes: [heartShape],
+            scalar: 2.5,
+            gravity: 0.5,
+            ticks: 400,
+            zIndex: 10001,
+          });
+        }
+      }, 150);
+
+      return () => clearInterval(interval);
+    }
+  }, [showQuotes, currentQuoteIndex, quotes.length]);
+
+  useEffect(() => {
+    return () => {
+      if (fireworksInstance.current) {
+        fireworksInstance.current.stop();
+      }
+    };
+  }, []);
 
   return (
     <div className="bg-black relative overflow-hidden">
+      {/* 全屏烟花效果 */}
+      {showFireworks && (
+        <div 
+          ref={fireworksRef}
+          className="fixed inset-0 z-[9999] bg-black"
+          style={{ width: '100vw', height: '100vh' }}
+        />
+      )}
+
+      {/* 语录展示 */}
+      {showQuotes && currentQuoteIndex < quotes.length && (
+        <div className="fixed inset-0 z-[10000] bg-black flex items-center justify-center px-4">
+          <motion.div
+            key={currentQuoteIndex}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-4xl w-full"
+          >
+            <TextGenerateEffect
+              words={quotes[currentQuoteIndex]}
+              className="text-2xl sm:text-3xl md:text-5xl text-white text-center"
+              duration={0.8}
+            />
+          </motion.div>
+        </div>
+      )}
+
       {/* 背景音乐 */}
-      <BackgroundMusic onConfirm={() => setMusicConfirmed(true)} />
+      <BackgroundMusic onConfirm={() => {}} />
       
       {/* 固定的星空背景 */}
       <div className="fixed inset-0 overflow-hidden">
@@ -233,7 +477,7 @@ export default function CynPage() {
         <span className="text-xs sm:text-sm font-medium">返回</span>
       </Link>
 
-      {/* 第一部分：CYN */}
+      {/* 第一部分：YM */}
       <motion.div
         style={{ opacity: opacity1, scale: scale1 }}
         className="sticky top-0 min-h-screen text-white flex items-center justify-center px-4 relative z-10"
@@ -255,19 +499,19 @@ export default function CynPage() {
             }}
           >
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 md:mb-16 text-white">
-              CYN
+              YM
             </h1>
           </motion.div>
           <div className="space-y-8">
             <TextGenerateEffect
-              words="有些人 注定只能藏在心底"
+              words="从今以后 你就是我的全世界"
               className="text-xl sm:text-2xl md:text-3xl"
             />
           </div>
         </motion.div>
       </motion.div>
 
-      {/* 第二部分：暗恋文案 */}
+      {/* 第二部分：在一起文案 */}
       <div className="min-h-screen relative z-10 flex items-center justify-center px-4">
         <div className="max-w-4xl mx-auto text-center space-y-8 md:space-y-16">
           <motion.div
@@ -277,7 +521,7 @@ export default function CynPage() {
             viewport={{ once: true }}
           >
             <TextGenerateEffect
-              words="我喜欢你 像风走了八千里 不问归期"
+              words="我们在一起了 这是我最幸福的时刻"
               className="text-xl sm:text-2xl md:text-4xl text-white"
             />
           </motion.div>
@@ -289,7 +533,7 @@ export default function CynPage() {
             viewport={{ once: true }}
           >
             <TextGenerateEffect
-              words="你是我的秘密 藏在心底最柔软的地方"
+              words="余生很长 我想和你一起走"
               className="text-xl sm:text-2xl md:text-4xl text-white"
             />
           </motion.div>
@@ -318,7 +562,13 @@ export default function CynPage() {
           {/* 信封容器 */}
           <div 
             className="relative w-full aspect-[3/2] perspective-1000"
-            onClick={() => !isEnvelopeOpen && setIsEnvelopeOpen(true)}
+            onClick={(e) => {
+              // 检查是否点击的是"挚爱杨敏"
+              const target = e.target as HTMLElement;
+              if (!target.closest('.love-text')) {
+                handleEnvelopeClick();
+              }
+            }}
           >
             {/* 信封主体 - 更精致的设计 */}
             <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-amber-100 to-amber-200 rounded-lg shadow-2xl border-2 border-amber-300/50">
@@ -334,6 +584,20 @@ export default function CynPage() {
               
               {/* 中央装饰线条 */}
               <div className="absolute top-1/2 left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
+              
+              {/* 信封底部文字 - 挚爱杨敏 */}
+              <div 
+                className="love-text absolute bottom-12 left-1/2 transform -translate-x-1/2 cursor-pointer hover:scale-110 transition-transform z-30"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log("点击了挚爱杨敏");
+                  handleLoveTextClick();
+                }}
+              >
+                <p className="text-amber-900 text-2xl sm:text-3xl md:text-4xl font-bold tracking-widest pointer-events-auto" style={{ fontFamily: "'KaiTi', 'STKaiti', 'SimKai', serif" }}>
+                  挚爱杨敏
+                </p>
+              </div>
               
               {/* 复古纹理效果 */}
               <div className="absolute inset-0 opacity-10 rounded-lg" 
@@ -470,7 +734,7 @@ export default function CynPage() {
                 {/* 信纸内容 */}
                 <div className="relative text-black font-serif">
                   <div className="text-center mb-4 sm:mb-6">
-                    <p className="text-lg sm:text-xl font-bold text-black mb-2">致 CYN</p>
+                    <p className="text-lg sm:text-xl font-bold text-black mb-2">致 YM</p>
                     <div className="w-20 sm:w-24 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto" />
                   </div>
                   
@@ -478,49 +742,40 @@ export default function CynPage() {
                     <>
                       <div className="text-xs sm:text-sm leading-loose text-justify space-y-3 sm:space-y-4">
                         <p className="indent-8">
-                          <AnimatedSentence sentence="亲爱的你，当我提笔写下这些文字时，窗外的夕阳正洒在11班的教室里，那是我们相遇的地方。" delay={0} />
-                          <AnimatedSentence sentence="高一的时光总是过得那么快，快到我还没来得及好好看你一眼，2026年6月的分班就要到来了。" delay={2} />
-                          <AnimatedSentence sentence="我知道，那之后我们可能就不在同一个班级了，甚至可能选择不同的科目，走向不同的方向。" delay={4} />
+                          <AnimatedSentence sentence="亲爱的你，当我写下这些文字时，心中满是幸福和感动。" delay={0} />
+                          <AnimatedSentence sentence="2025年12月24日，这个特别的日子，我们终于在一起了。" delay={2} />
+                          <AnimatedSentence sentence="这一刻，我等了很久，也期待了很久。" delay={4} />
                         </p>
                         
                         <p className="indent-8">
-                          <AnimatedSentence sentence="还记得第一次见到你，是在开学那天，阳光透过窗户照在你的侧脸上，那一刻我的心跳好像漏了一拍。" delay={6} />
-                          <AnimatedSentence sentence="从那以后，我总是偷偷地看你，看你认真做题的样子，看你和朋友说笑的样子，看你趴在桌上午休的样子。" delay={8} />
-                          <AnimatedSentence sentence="每一个瞬间都深深刻在我的心里，成为我最珍贵的回忆。" delay={10} />
+                          <AnimatedSentence sentence="还记得朋友第一次把你介绍给我的时候，我就被你吸引了。" delay={6} />
+                          <AnimatedSentence sentence="你的笑容，你的温柔，你的善良，都让我心动不已。" delay={8} />
+                          <AnimatedSentence sentence="虽然我们都还在读高中，但我知道，你就是我想要守护的那个人。" delay={10} />
                         </p>
                         
                         <p className="indent-8">
-                          <AnimatedSentence sentence="我喜欢你，像风走了八千里，不问归期。" delay={12} />
-                          <AnimatedSentence sentence="这份感情深藏心底，不敢言说，却又无法抑制。" delay={13.5} />
-                          <AnimatedSentence sentence="我害怕表白会打破我们之间的平静，害怕连现在这样远远看着你的机会都会失去。" delay={15} />
-                          <AnimatedSentence sentence="所以我选择沉默，把所有的喜欢都藏在心底最柔软的地方。" delay={17} />
+                          <AnimatedSentence sentence="从相识到相知，从朋友到恋人，每一步都让我更加确信，遇见你是我最大的幸运。" delay={12} />
+                          <AnimatedSentence sentence="我们一起上学，一起放学，一起分享生活中的点点滴滴。" delay={14} />
+                          <AnimatedSentence sentence="这些平凡的日子，因为有你，都变得格外珍贵。" delay={16} />
                         </p>
                         
                         <p className="indent-8">
-                          <AnimatedSentence sentence="时间一天天过去，离分班的日子越来越近，我的心里满是不舍和遗憾。" delay={19} />
-                          <AnimatedSentence sentence="不舍的是即将失去每天见到你的机会，遗憾的是始终没有勇气对你说出那三个字。" delay={21} />
-                          <AnimatedSentence sentence="也许这就是青春吧，总有些话来不及说，总有些人来不及爱。" delay={23} />
+                          <AnimatedSentence sentence="我知道我们还年轻，未来还有很长的路要走。" delay={18} />
+                          <AnimatedSentence sentence="但我想和你一起努力，一起成长，一起面对未来的每一个挑战。" delay={20} />
+                          <AnimatedSentence sentence="无论是高考，还是以后的人生，我都想牵着你的手一起走。" delay={22} />
                         </p>
                         
                         <p className="indent-8">
-                          <AnimatedSentence sentence="如果有一天，你无意中看到这封信，希望你不要惊讶，也不要有负担。" delay={25} />
-                          <AnimatedSentence sentence="我只是想让你知道，在这个世界上，曾经有一个人那么认真地喜欢过你。" delay={27} />
-                          <AnimatedSentence sentence="愿你被这世界温柔以待，愿你的每一天都充满阳光，愿你的未来比我想象的还要美好。" delay={29} />
-                        </p>
-                        
-                        <p className="indent-8">
-                          <AnimatedSentence sentence="即使我们终将走向不同的方向，你依然是我高中时光里最美的风景。" delay={31} />
+                          <AnimatedSentence sentence="谢谢你愿意成为我的女朋友，让我有机会好好爱你。" delay={24} />
+                          <AnimatedSentence sentence="我会珍惜我们在一起的每一天，会努力让你开心快乐。" delay={26} />
+                          <AnimatedSentence sentence="余生很长，我想和你一起走。我爱你，YM。" delay={28} />
                         </p>
                       </div>
                       
                       <div className="pt-4 sm:pt-6 text-right space-y-1">
                         <p className="text-[10px] sm:text-xs text-gray-800">@忘本</p>
                         <p className="text-[9px] sm:text-[10px] text-gray-600">
-                          {new Date().toLocaleDateString('zh-CN', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
+                          2025年12月24日
                         </p>
                       </div>
                     </>

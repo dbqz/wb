@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const msg = searchParams.get("msg") || "谁和我在一起会幸福的";
+  const msg = searchParams.get("msg") || "雨爱(人声弱化1.05x)";
   const n = searchParams.get("n") || "1";
 
   try {
