@@ -16,7 +16,7 @@ function LoveTimer() {
   });
 
   useEffect(() => {
-    const startDate = new Date("2025-10-12T13:14:00");
+    const startDate = new Date("2025-12-30T18:40:00");
 
     const updateTimer = () => {
       const now = new Date();
@@ -104,15 +104,15 @@ export default function AboutPage() {
         </motion.div>
       </motion.div>
 
-      {/* 第二部分：暗恋文案和时长 */}
+      {/* 第二部分：在一起文案和时长 */}
       <div className="min-h-screen relative z-10 flex items-center justify-center px-4">
         <div className="max-w-4xl mx-auto text-center space-y-12">
           <TextGenerateEffect
-            words="有些人 注定只能藏在心底 成为最温柔的秘密"
+            words="从今以后 你就是我的全世界"
             className="text-2xl md:text-4xl text-white"
           />
           <TextGenerateEffect
-            words="我喜欢你 像风走了八千里 不问归期"
+            words="虽然我们在不同的学校 但我的心永远陪着你"
             className="text-2xl md:text-4xl text-white"
           />
           <motion.div
